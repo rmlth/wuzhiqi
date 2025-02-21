@@ -11,7 +11,7 @@ class QuadDetector:
     """
     四边形检测器类
     """
-    def __init__(self, max_perimeter=99999, min_perimeter=10000, scale=0, min_angle=10, line_seg_num=4):
+    def __init__(self, max_perimeter=99999, min_perimeter=10000, scale=0, min_angle=30, line_seg_num=4):
         """
         初始化四边形检测器
         :param max_perimeter: 最大周长

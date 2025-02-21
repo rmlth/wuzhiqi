@@ -12,7 +12,7 @@ quad_detector = fistquad_detector.QuadDetector(
     max_perimeter=8000,
     min_perimeter=300,
     scale=1,
-    min_angle=10,
+    min_angle=30,
     line_seg_num=3
 )
 
