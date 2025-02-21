@@ -4,7 +4,7 @@ import sys
 from loguru import logger
 
 class QuadDetector:
-    def __init__(self, max_perimeter=9000, min_perimeter=300, scale=1, min_angle=30, line_seg_num=3):
+    def __init__(self, max_perimeter=9000, min_perimeter=300, scale=1, min_angle=10, line_seg_num=3):
         self.img = None
         self.max_perimeter = max_perimeter
         self.min_perimeter = min_perimeter

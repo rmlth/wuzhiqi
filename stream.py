@@ -11,7 +11,7 @@ quad_detector = quad_detector.QuadDetector(
     max_perimeter=8000,
     min_perimeter=500,
     scale=0.95,
-    min_angle=45,
+    min_angle=10,
     line_seg_num=3
 )
 
