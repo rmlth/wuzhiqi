@@ -10,7 +10,7 @@ import fistquad_detector
 # 创建四边形检测器对象
 quad_detector = fistquad_detector.QuadDetector(
     max_perimeter=8000,
-    min_perimeter=300,
+    min_perimeter=600,
     scale=1,
     min_angle=30,
     line_seg_num=3
@@ -20,7 +20,7 @@ class ThreadedCamera(object):
     """
     多线程摄像头类
     """
-    def __init__(self, url=0, FPS=1/60):
+    def __init__(self, url=0, FPS=1/30):
         """
         :param url: 摄像头地址, 默认为0, 可以是0表示使用默认摄像头, 也可以是文件路径/视频路径
         """
@@ -138,7 +138,7 @@ def generate_frames(camera):
 # 主程序入口
 if __name__ == '__main__':
     # 摄像头URL设置为本地摄像头
-    url = 2
+    url = 0
 
     # 根据操作系统选择运行方式
     if platform.system() == 'Linux': 

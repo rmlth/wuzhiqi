@@ -164,24 +164,26 @@ class QuadDetector:
         self.points_list = [points_0, points_1, points_2, points_3]
         logger.debug(f"Found points list: {self.points_list}")
         return self.points_list
-
     def generate_grid(self):
         """
-        生成网格线
+        生成3x3网格线
         """
         grid_lines = []
-        for i in range(self.line_seg_num + 1):
-            line = []
-            line.append(self.points_list[0][i])
-            line.append(self.points_list[2][i])
-            grid_lines.append(line)
 
-            line = []
-            line.append(self.points_list[1][i])
-            line.append(self.points_list[3][i])
-            grid_lines.append(line)
+    # 1. 每条边分成3等份，获取这些分割点
+        for i in range(3):
+        # 水平线：连接上边和下边的等分点
+            grid_lines.append([self.points_list[0][i], self.points_list[1][i]])  # 从左到右的水平线
+            grid_lines.append([self.points_list[2][i], self.points_list[3][i]])  # 从左到右的水平线
+
+    # 2. 垂直线：连接左边和右边的等分点
+        for i in range(3):
+            grid_lines.append([self.points_list[i][0], self.points_list[i][3]])  # 从上到下的垂直线
+            grid_lines.append([self.points_list[i][1], self.points_list[i][2]])  # 从上到下的垂直线
 
         return grid_lines
+
+
 
     def calculate_intersection(self, vertices=None):
         """
@@ -248,51 +250,57 @@ class QuadDetector:
         if img is None:
             img = self.img.copy()
 
-        def draw_point_text(img, x, y, bgr=(0, 0, 255)):
-            cv2.circle(img, (x, y), 6, bgr, -1)
-            cv2.putText(
-                img,
-                f"({x}, {y})",
-                (x + 5, y - 5),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5, (0, 0, 255), 1, cv2.LINE_AA,
-            )
-            return img
-
-        def draw_lines_points(img, vertices, bold=2):
-            cv2.drawContours(img, [vertices], 0, (255, 0, 0), bold)
-
-            for vertex in vertices:
-                draw_point_text(img, vertex[0], vertex[1])
-            
-            cv2.line(
-                img,
-                (vertices[0][0], vertices[0][1]),
-                (vertices[2][0], vertices[2][1]),
-                (0, 255, 0), 1,
-            )
-            cv2.line(
-                img,
-                (vertices[1][0], vertices[1][1]),
-                (vertices[3][0], vertices[3][1]),
-                (0, 255, 0), 1,
-            )
-            return img
-        
-        def draw_segment_points(img, points_list):
-            logger.debug(f"Found points list: {points_list}")
-            for points in points_list:
-                for point in points:
-                    cv2.circle(img, (int(point[0]), int(point[1])), 4, (0, 255, 255), -1)
-            
-            return img
-
-        img_drawed = draw_lines_points(self.img, self.vertices)          # 绘制四边形
-        img_drawed = draw_lines_points(img_drawed, self.scale_vertices)  # 绘制缩放后的四边形
-        img_drawed = draw_segment_points(img_drawed, self.points_list)   # 绘制分割点
-        img_drawed = draw_point_text(img_drawed, self.intersection[0], self.intersection[1]) # 绘制交点
+        img_drawed = self.draw_lines_points(img, self.vertices)          # 绘制四边形
+        img_drawed = self.draw_lines_points(img_drawed, self.scale_vertices)  # 绘制缩放后的四边形
+        img_drawed = self.draw_segment_points(img_drawed, self.points_list)   # 绘制分割点
+        img_drawed = self.draw_point_text(img_drawed, self.intersection[0], self.intersection[1]) # 绘制交点
+        img_drawed = self.draw_grid_lines(img_drawed, self.generate_grid())   # 绘制网格线
 
         return img_drawed
+
+    def draw_point_text(self, img, x, y, bgr=(0, 0, 255)):
+        cv2.circle(img, (x, y), 6, bgr, -1)
+        cv2.putText(
+            img,
+            f"({x}, {y})",
+            (x + 5, y - 5),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5, (0, 0, 255), 1, cv2.LINE_AA,
+        )
+        return img
+
+    def draw_lines_points(self, img, vertices, bold=2):
+        cv2.drawContours(img, [vertices], 0, (255, 0, 0), bold)
+
+        for vertex in vertices:
+            self.draw_point_text(img, vertex[0], vertex[1])
+        
+        cv2.line(
+            img,
+            (vertices[0][0], vertices[0][1]),
+            (vertices[2][0], vertices[2][1]),
+            (0, 255, 0), 1,
+        )
+        cv2.line(
+            img,
+            (vertices[1][0], vertices[1][1]),
+            (vertices[3][0], vertices[3][1]),
+            (0, 255, 0), 1,
+        )
+        return img
+        
+    def draw_segment_points(self, img, points_list):
+        logger.debug(f"Found points list: {points_list}")
+        for points in points_list:
+            for point in points:
+                cv2.circle(img, (int(point[0]), int(point[1])), 4, (0, 255, 255), -1)
+            
+        return img
+
+    def draw_grid_lines(self, img, grid_lines):
+        for line in grid_lines:
+            cv2.line(img, tuple(line[0]), tuple(line[1]), (0, 255, 0), 1)
+        return img
 
 if __name__ == '__main__':
     print("初始化四边形检测器")
